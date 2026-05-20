@@ -17,8 +17,7 @@ namespace SnakeGame
 		if (!rootItem->childrens.empty()) {
 			SelectMenuItem(*rootItem->childrens.front());
 		}
-
-		selectedItem = nullptr;
+		//selectedItem = nullptr;
 	}
 
 	void Menu::SetupMenuItemFromSource(MenuItem& dest, const MenuItem& src, const sf::Font& font)
@@ -28,13 +27,16 @@ namespace SnakeGame
 		if (!dest.text) dest.text = std::make_unique<sf::Text>();
 		if (!dest.hintText) dest.hintText = std::make_unique<sf::Text>();
 
+		std::string textStr = src.text->getString().toAnsiString();
+		std::string hintStr = src.hintText->getString().toAnsiString();
+
 		dest.text->setFont(font);
-		dest.text->setString("Test");
+		dest.text->setString(textStr);
 		dest.text->setCharacterSize(24);
 		dest.text->setFillColor(sf::Color::White);
 
 		dest.hintText->setFont(font);
-		dest.hintText->setString("Test");
+		dest.hintText->setString(hintStr);
 		dest.hintText->setCharacterSize(24);
 		dest.hintText->setFillColor(sf::Color::White);
 
@@ -120,13 +122,15 @@ namespace SnakeGame
 		}
 		
 		MenuItem* parent = selectedItem->parent;
-		assert(parent); // There always should be parent
+		assert(parent);
 
 		auto it = std::find_if(parent->childrens.begin(), parent->childrens.end(), [this](const auto& item) {
 			return selectedItem == item.get();
 		});
+
 		if (it != parent->childrens.begin()) {
-			SelectMenuItem(*(*std::prev(it)));
+			--it;
+			SelectMenuItem(**it); 
 		}
 	}
 
@@ -137,7 +141,7 @@ namespace SnakeGame
 		}
 		
 		MenuItem* parent = selectedItem->parent;
-		assert(parent); // There always should be parent
+		assert(parent);
 		
 		auto it = std::find_if(parent->childrens.begin(), parent->childrens.end(), [this](const auto& item) {
 			return selectedItem == item.get();

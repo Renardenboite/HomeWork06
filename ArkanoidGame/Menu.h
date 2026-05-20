@@ -7,6 +7,8 @@
 
 namespace SnakeGame
 {
+	class Menu;
+
 	struct MenuItem
 	{
 		std::unique_ptr<sf::Text> text;
@@ -34,7 +36,8 @@ namespace SnakeGame
 		bool isEnabled = true;
 		std::vector<std::unique_ptr<MenuItem>> childrens;
 
-		std::function<void(MenuItem* item, Menu* menu)> onPressCallback; 
+		//std::function<void(MenuItem* item, Menu* menu)> onPressCallback; 
+		void (*onPressCallback)(MenuItem* item, Menu* menu) = nullptr;
 
 		MenuItem* parent = nullptr;
 

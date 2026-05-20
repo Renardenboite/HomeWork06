@@ -24,25 +24,25 @@ namespace SnakeGame
 		case GameStateType::Playing:
 		{
 			data = new GameStatePlayingData();
-			((GameStateMainMenuData*)data)->Init();
+			((GameStatePlayingData*)data)->Init();
 			break;
 		}
 		case GameStateType::GameOver:
 		{
 			data = new GameStateGameOverData();
-			((GameStateMainMenuData*)data)->Init();
+			((GameStateGameOverData*)data)->Init();
 			break;
 		}
 		case GameStateType::ExitDialoge:
 		{
 			data = new GameStatePauseMenuData();
-			((GameStateMainMenuData*)data)->Init();
+			((GameStatePauseMenuData*)data)->Init();
 			break;
 		}
 		case GameStateType::Records:
 		{
 			data = new GameStateRecordsData();
-			((GameStateMainMenuData*)data)->Init();
+			((GameStateRecordsData*)data)->Init();
 			break;
 		}
 		default:
@@ -204,37 +204,30 @@ namespace SnakeGame
 		case GameStateType::MainMenu:
 		{
 			data = new GameStateMainMenuData();
-			//*((GameStateMainMenuData*)data) = *(GameStateMainMenuData*)state.data;
-			GameStateMainMenuData* newData = new GameStateMainMenuData();
 			((GameStateMainMenuData*)data)->Init();
 			break;
 		}
 		case GameStateType::Playing:
 		{
 			data = new GameStatePlayingData();
-			//*((GameStatePlayingData*)data) = *(GameStatePlayingData*)state.data;
 			((GameStatePlayingData*)data)->Init();
 			break;
 		}
 		case GameStateType::GameOver:
 		{
 			data = new GameStateGameOverData();
-			//*((GameStateGameOverData*)data) = *(GameStateGameOverData*)state.data;
 			((GameStateGameOverData*)data)->Init();
 			break;
 		}
 		case GameStateType::ExitDialoge:
 		{
 			data = new GameStatePauseMenuData();
-			//*((GameStatePauseMenuData*)data) = *(GameStatePauseMenuData*)state.data;
-			GameStatePauseMenuData* newData = new GameStatePauseMenuData();
 			((GameStatePauseMenuData*)data)->Init();
 			break;
 		}
 		case GameStateType::Records:
 		{
 			data = new GameStateRecordsData();
-			//*((GameStateRecordsData*)data) = *(GameStateRecordsData*)state.data;
 			((GameStateRecordsData*)data)->Init();
 			break;
 		}

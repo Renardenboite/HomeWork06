@@ -3,6 +3,8 @@
 #include "Game.h"
 #include "Text.h"
 
+#include <windows.h>
+
 #include <assert.h>
 #include <sstream>
 
@@ -51,6 +53,13 @@ namespace SnakeGame
 
 	void GameStatePlayingData::Update(float timeDelta)
 	{
+		static int frame = 0;
+		if (frame++ < 10) {
+			std::string msg = "Playing Update frame " + std::to_string(frame) +
+				", ball Y: " + std::to_string(ball.GetPosition().y) + "\n";
+			OutputDebugStringA(msg.c_str());
+		}
+
 		platform.Update(timeDelta);
 		ball.Update(timeDelta);
 		const bool isCollision = platform.CheckCollisionWithBall(ball);
@@ -59,7 +68,7 @@ namespace SnakeGame
 			ball.ReboundFromPlatform();
 		}
 		
-		const bool isGameFinished = !isCollision && ball.GetPosition().y > platform.GetRect().top;
+		const bool isGameFinished = ball.GetPosition().y > SCREEN_HEIGHT + BALL_SIZE;
 
 		if (isGameFinished)
 		{

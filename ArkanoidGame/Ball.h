@@ -24,6 +24,6 @@ namespace SnakeGame
 		sf::Sprite sprite;
 		sf::Texture texture;
 		sf::Vector2f direction;
-		float angle = 90;
+		float angle = 45;
 	};
 }

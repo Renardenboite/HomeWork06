@@ -10,12 +10,12 @@ namespace SnakeGame
 	const std::string SOUNDS_PATH = RESOURCES_PATH + "Sounds/";
 
 	// Game settings constants
-	const float INITIAL_SPEED = 10.f;	
-	const float PLATFORM_SPEED = 20.f;
-	const float PLATFORM_WIGTH = 20;
-	const float PLATFORM_HEIGHT = 5;
+	const float INITIAL_SPEED = 200.f;	
+	const float PLATFORM_SPEED = 200.f;
+	const float PLATFORM_WIGTH = 100;
+	const float PLATFORM_HEIGHT = 20;
 	const float BALL_SIZE = 20;
-	const float ACCELERATION = 10.f;
+	const float ACCELERATION = 200.f;
 	const int MAX_APPLES = 80;
 	const unsigned int SCREEN_WIDTH = 800;
 	const unsigned int SCREEN_HEIGHT = 600;
