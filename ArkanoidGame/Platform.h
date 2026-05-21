@@ -1,32 +1,24 @@
 #pragma once
 #include "SFML/Graphics.hpp"
+#include "GameObject.h"
 #include <algorithm>
 
 namespace SnakeGame
 {
 	class Ball;
 
-	class Platform
+	class Platform : public GameObject
 	{
 	public:
 		void Init();
 		void Update(float timeDelta);
-		void Draw(sf::RenderWindow& window);
-		void Move(float speed);
+		void Draw(sf::RenderWindow& window) override;
 
 		bool CheckCollisionWithBall(const Ball& ball);
 
-		sf::FloatRect GetRect() const { return sprite.getGlobalBounds(); }
-
-		Platform() = default;
-		Platform(const Platform&) = delete;
-		Platform& operator=(const Platform&) = delete;
-		Platform(Platform&&) = default;
-		Platform& operator=(Platform&&) = default;
+		sf::FloatRect GetRect() const { return sprite.getGlobalBounds(); }		
 
 	private:
-		sf::Sprite sprite;
-		sf::Texture texture;
-		float speed = 0.f;
+		void Move(float speed);
 	};
 }

@@ -2,9 +2,9 @@
 #include "Application.h"
 #include "Game.h"
 #include "Text.h"
-
+#include <limits>
 #include <windows.h>
-
+#include <random>
 #include <assert.h>
 #include <sstream>
 
@@ -12,10 +12,7 @@ namespace SnakeGame
 {
 	void GameStatePlayingData::Init()
 	{	
-		// Init game resources (terminate if error)
-		//assert(font.loadFromFile(FONTS_PATH + "Roboto-Regular.ttf"));
 		const sf::Font& font = Application::Instance().GetGame().GetDefaultFont();
-
 		assert(gameOverSoundBuffer.loadFromFile(SOUNDS_PATH + "Death.wav"));
 
 		// Init background
@@ -33,11 +30,40 @@ namespace SnakeGame
 		inputHintText.setString("Use arrow keys to move, ESC to pause");
 		inputHintText.setOrigin(GetTextOrigin(inputHintText, { 1.f, 0.f }));
 
-		platform.Init();
-		ball.Init();
+		auto platformObj = std::make_shared<Platform>();
+		platformObj->Init();
+		gameObjects.push_back(platformObj);
+		platform = platformObj.get();
+
+		auto ballObj = std::make_shared<Ball>();
+		ballObj->Init();
+		gameObjects.push_back(ballObj);
+		ball = ballObj.get();
+
+		const float totalWidth = COLS * BLOCK_WIDTH + (COLS - 1) * blockSpacingX;
+		const float startX = (SCREEN_WIDTH - totalWidth) / 2.f;
+		const float startY = 80.f;
+		for (int row = 0; row < ROWS; ++row)
+		{
+			for (int col = 0; col < COLS; ++col)
+			{
+				auto blockObj = std::make_shared<Block>();
+				blockObj->Init();
+
+				float x = startX + col * (BLOCK_WIDTH + blockSpacingX);
+				float y = startY + row * (BLOCK_HEIGHT + blockSpacingY);
+				blockObj->SetPosition({ x, y });
+
+				gameObjects.push_back(blockObj);
+				blocks.push_back(blockObj.get());
+			}
+		}
 
 		// Init sounds
 		gameOverSound.setBuffer(gameOverSoundBuffer);
+
+		blocksDestroyed = 0;
+		gameWon = false;
 	}
 
 	void GameStatePlayingData::HandleWindowEvent(const sf::Event& event)
@@ -53,32 +79,103 @@ namespace SnakeGame
 
 	void GameStatePlayingData::Update(float timeDelta)
 	{
-		static int frame = 0;
-		if (frame++ < 10) {
-			std::string msg = "Playing Update frame " + std::to_string(frame) +
-				", ball Y: " + std::to_string(ball.GetPosition().y) + "\n";
-			OutputDebugStringA(msg.c_str());
-		}
+		if (gameWon) return;
 
-		platform.Update(timeDelta);
-		ball.Update(timeDelta);
-		const bool isCollision = platform.CheckCollisionWithBall(ball);
-		if (isCollision)
+		for (auto& obj : gameObjects)
 		{
-			ball.ReboundFromPlatform();
+			obj->Update(timeDelta);
 		}
-		
-		const bool isGameFinished = ball.GetPosition().y > SCREEN_HEIGHT + BALL_SIZE;
 
-		if (isGameFinished)
+		if (platform->CheckCollisionWithBall(*ball))
+		{
+			ball->ReboundFromPlatform();
+		}
+
+		CheckBallCollisionWithBlocks();
+
+		CheckWinCondition();
+
+		if (ball->GetPosition().y > SCREEN_HEIGHT + BALL_SIZE)
 		{
 			gameOverSound.play();
-			
 			Game& game = Application::Instance().GetGame();
-
-			// Find snake in records table and update his score
-			//game.UpdateRecord(PLAYER_NAME, numEatenApples);
 			game.PushState(GameStateType::GameOver, false);
+		}		
+	}
+
+	void GameStatePlayingData::CheckBallCollisionWithBlocks()
+	{
+		const sf::Vector2f ballPos = ball->GetPosition();
+		const float ballRadius = BALL_SIZE / 2.f;
+
+		Block* closestBlock = nullptr;
+		float minDistance = std::numeric_limits<float>::max();
+		sf::FloatRect closestRect;
+		bool hitSide = false;  
+
+		std::vector<Block*> collidedBlocks;
+
+		for (auto* block : blocks)
+		{
+			if (block->IsDestroyed()) continue;
+
+			const sf::FloatRect blockRect = block->GetRect();
+
+			float overlapLeft = (ballPos.x + ballRadius) - blockRect.left;
+			float overlapRight = (blockRect.left + blockRect.width) - (ballPos.x - ballRadius);
+			float overlapTop = (ballPos.y + ballRadius) - blockRect.top;
+			float overlapBottom = (blockRect.top + blockRect.height) - (ballPos.y - ballRadius);
+
+			if (overlapLeft > 0 && overlapRight > 0 && overlapTop > 0 && overlapBottom > 0)
+			{				
+				collidedBlocks.push_back(block);
+
+				float blockCenterX = blockRect.left + blockRect.width / 2.f;
+				float blockCenterY = blockRect.top + blockRect.height / 2.f;
+				float distX = ballPos.x - blockCenterX;
+				float distY = ballPos.y - blockCenterY;
+				float distance = std::sqrt(distX * distX + distY * distY);
+
+				if (distance < minDistance)
+				{
+					minDistance = distance;
+					closestBlock = block;
+					closestRect = blockRect;
+
+					float minOverlapX = std::min(overlapLeft, overlapRight);
+					float minOverlapY = std::min(overlapTop, overlapBottom);
+					hitSide = (minOverlapX < minOverlapY);
+				}				
+			}			
+		}
+
+		if (!collidedBlocks.empty())
+		{
+			if (hitSide)
+			{
+				ball->ReboundFromBlockSide();
+			}
+			else
+			{
+				ball->ReboundFromBlock();
+			}
+
+			for (auto* block : collidedBlocks)
+			{
+				block->Destroy();
+				blocksDestroyed++;
+			}
+		}
+	}
+
+	void GameStatePlayingData::CheckWinCondition()
+	{
+		if (blocksDestroyed >= blocks.size())
+		{
+			gameWon = true;
+
+			Game& game = Application::Instance().GetGame();
+			game.PushState(GameStateType::Victory, false);  
 		}
 	}
 
@@ -87,8 +184,13 @@ namespace SnakeGame
 		// Draw background
 		window.draw(background);
 
-		platform.Draw(window);
-		ball.Draw(window);
+		for (auto& obj : gameObjects)
+		{
+			auto* block = dynamic_cast<Block*>(obj.get());
+			if (block && block->IsDestroyed()) continue;  // Пропускаем уничтоженные блоки
+
+			obj->Draw(window);
+		}
 
 		scoreText.setOrigin(GetTextOrigin(scoreText, { 0.f, 0.f }));
 		scoreText.setPosition(10.f, 10.f);

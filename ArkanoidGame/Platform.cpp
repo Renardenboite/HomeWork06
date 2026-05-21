@@ -38,7 +38,7 @@ namespace SnakeGame
 	}
 	void Platform::Move(float speed)
 	{
-		auto position = sprite.getPosition();
+		sf::Vector2f position = sprite.getPosition();
 		position.x = std::clamp(position.x + speed, PLATFORM_WIGTH / 2.f, SCREEN_WIDTH - PLATFORM_HEIGHT / 2.f);
 		sprite.setPosition(position);
 	}
@@ -48,7 +48,7 @@ namespace SnakeGame
 		auto sqr = [](float x) { return x * x;  };
 
 		const auto rect = sprite.getGlobalBounds();
-		const auto ballPos = ball.GetPosition();
+		const sf::Vector2f ballPos = ball.GetPosition();
 
 		if (ballPos.x < rect.left)
 		{

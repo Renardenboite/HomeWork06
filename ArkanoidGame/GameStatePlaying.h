@@ -1,31 +1,35 @@
 #pragma once
 #include "SFML/Graphics.hpp"
 #include "SFML/Audio.hpp"
-
+#include "GameStateData.h"
 #include "Ball.h"
 #include "Platform.h"
+#include "Block.h"
 
 
 namespace SnakeGame
 {
-	class GameStatePlayingData
+	class Game;
+
+	class GameStatePlayingData : public GameStateData
 	{
 	public:
-		void Init();
-		void HandleWindowEvent(const sf::Event& event);
-		void Update(float timeDelta);
-		void Draw(sf::RenderWindow& window);
+		void Init() override;
+		void HandleWindowEvent(const sf::Event& event) override;
+		void Update(float timeDelta) override;
+		void Draw(sf::RenderWindow& window) override;
 
-		GameStatePlayingData() = default;
-		GameStatePlayingData(const GameStatePlayingData&) = delete;
-		GameStatePlayingData& operator=(const GameStatePlayingData&) = delete;
-		GameStatePlayingData(GameStatePlayingData&&) = default;
-		GameStatePlayingData& operator=(GameStatePlayingData&&) = default;
-
+		
 	private:
+		void CheckBallCollisionWithBlocks();
+		void CheckWinCondition();
+
 		// Resources
 		sf::Font font;
 		sf::SoundBuffer gameOverSoundBuffer;
+
+		// Game data
+		std::vector<std::shared_ptr<GameObject>> gameObjects;
 
 		// UI data
 		sf::Text scoreText;
@@ -34,8 +38,11 @@ namespace SnakeGame
 
 		// Sounds
 		sf::Sound gameOverSound;
+		Platform* platform = nullptr;
+		Ball* ball = nullptr;
+		std::vector<Block*> blocks; 
 
-		Platform platform;
-		Ball ball;
+		int blocksDestroyed = 0;
+		bool gameWon = false;		
 	};
 }

@@ -1,24 +1,25 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "Menu.h"
+#include "GameStateData.h"
 
 namespace SnakeGame
 {
 	class Game;
 
-	class GameStatePauseMenuData
+	class GameStatePauseMenuData : public GameStateData
 	{
 	public:
-		void Init();
-		void HandleWindowEvent(const sf::Event& event);
-		void Update(float timeDelta);
-		void Draw(sf::RenderWindow& window);
+		void Init() override;
+		void HandleWindowEvent(const sf::Event& event) override;
+		void Update(float timeDelta) override;
+		void Draw(sf::RenderWindow& window) override;
 
-		GameStatePauseMenuData() = default;
+		/*GameStatePauseMenuData() = default;
 		GameStatePauseMenuData(const GameStatePauseMenuData&) = delete;
 		GameStatePauseMenuData& operator=(const GameStatePauseMenuData&) = delete;
 		GameStatePauseMenuData(GameStatePauseMenuData&&) = default;
-		GameStatePauseMenuData& operator=(GameStatePauseMenuData&&) = default;
+		GameStatePauseMenuData& operator=(GameStatePauseMenuData&&) = default;*/
 
 	private:
 		sf::Font font;

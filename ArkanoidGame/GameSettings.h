@@ -12,9 +12,20 @@ namespace SnakeGame
 	// Game settings constants
 	const float INITIAL_SPEED = 200.f;	
 	const float PLATFORM_SPEED = 200.f;
-	const float PLATFORM_WIGTH = 100;
-	const float PLATFORM_HEIGHT = 20;
-	const float BALL_SIZE = 20;
+	const float PLATFORM_WIGTH = 80.f;
+	const float PLATFORM_HEIGHT = 20.f;
+		
+	const float BLOCK_WIDTH = 80.f;
+	const float BLOCK_HEIGHT = 30.f;
+	const int COLS = 7;
+	const int ROWS = 3;
+	const int BLOCKS_COUNT = COLS * ROWS;
+	const float startX = BLOCK_WIDTH + 50.f;
+	const float startY = BLOCK_HEIGHT + 50.f;
+	const float blockSpacingX = 15.f;
+	const float blockSpacingY= 10.f;
+
+	const float BALL_SIZE = 20.f;
 	const float ACCELERATION = 200.f;
 	const int MAX_APPLES = 80;
 	const unsigned int SCREEN_WIDTH = 800;

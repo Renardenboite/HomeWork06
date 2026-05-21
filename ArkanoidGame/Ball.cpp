@@ -19,6 +19,7 @@ namespace SnakeGame
 		sprite.setPosition({ SCREEN_WIDTH / 2.0, SCREEN_HEIGHT - PLATFORM_HEIGHT - BALL_SIZE });
 
 		const auto piAngle = std::acos(-1.f);
+		const float angle = 45.f;
 		direction.x = std::cos(piAngle / 180.f * angle);
 		direction.y = -std::sin(piAngle / 180.f * angle);
 	}
@@ -36,19 +37,32 @@ namespace SnakeGame
 		}
 	}
 
-	void Ball::Draw(sf::RenderWindow& window)
+	void Ball::Draw(sf::RenderWindow & window)
 	{
 		DrawSprite(sprite, window);
 	}
 
+	void Ball::ReboundFromBlock()
+	{
+		direction.y *= -1;
+
+		float len = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+		direction.x /= len;
+		direction.y /= len;
+	}
+
 	void Ball::ReboundFromPlatform()
 	{
-		/*float lastAngle = angle;
-		const auto pAngle = std::acos(-1.f);
-		direction.x = (angle / abs(angle)) * std::cos(pAngle / 180.f * angle);
-		direction.y = -1 * abs(std::sin(pAngle / 180.f * angle));*/
-
 		direction.y = -std::abs(direction.y);
+
+		float len = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+		direction.x /= len;
+		direction.y /= len;
+	}
+
+	void Ball::ReboundFromBlockSide()
+	{
+		direction.x *= -1; 
 
 		float len = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 		direction.x /= len;

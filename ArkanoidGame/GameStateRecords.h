@@ -1,24 +1,25 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include "GameStateData.h"
 
 namespace SnakeGame
 {
 	class Game;
 
-	class GameStateRecordsData
+	class GameStateRecordsData : public GameStateData
 	{
 	public:
-		void Init();
-		void HandleWindowEvent(const sf::Event& event);
-		void Update(float timeDelta);
-		void Draw(sf::RenderWindow& window);
+		void Init() override;
+		void HandleWindowEvent(const sf::Event& event) override;
+		void Update(float timeDelta) override;
+		void Draw(sf::RenderWindow& window) override;
 
-		GameStateRecordsData() = default;
+		/*GameStateRecordsData() = default;
 		GameStateRecordsData(const GameStateRecordsData&) = delete;
 		GameStateRecordsData& operator=(const GameStateRecordsData&) = delete;
 		GameStateRecordsData(GameStateRecordsData&&) = default;
-		GameStateRecordsData& operator=(GameStateRecordsData&&) = default;
+		GameStateRecordsData& operator=(GameStateRecordsData&&) = default;*/
 
 	private:
 		sf::Font font;

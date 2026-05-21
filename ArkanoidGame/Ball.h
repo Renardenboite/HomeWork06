@@ -1,29 +1,21 @@
 #pragma once
 #include "SFML/Graphics.hpp"
+#include "GameObject.h"
 
 namespace SnakeGame
 {
-	class Ball
+	class Ball : public GameObject
 	{
 	public:
-		void Init();
-		void Update(float timeDelta);
-		void Draw(sf::RenderWindow& window);
+		void Init() override;
+		void Update(float timeDelta) override;
+		void Draw(sf::RenderWindow& window) override;
 
 		void ReboundFromPlatform();
-
-		const sf::Vector2f& GetPosition() const { return sprite.getPosition(); }
-
-		Ball() = default;
-		Ball(const Ball&) = delete;
-		Ball& operator=(const Ball&) = delete;
-		Ball(Ball&&) = default;
-		Ball& operator=(Ball&&) = default;
+		void ReboundFromBlock();		
+		void ReboundFromBlockSide();
 
 	private:
-		sf::Sprite sprite;
-		sf::Texture texture;
 		sf::Vector2f direction;
-		float angle = 45;
 	};
 }
