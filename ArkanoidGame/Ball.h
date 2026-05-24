@@ -1,21 +1,28 @@
 #pragma once
 #include "SFML/Graphics.hpp"
 #include "GameObject.h"
+#include "Collidable.h"
 
-namespace SnakeGame
+namespace ArkanoidGame
 {
-	class Ball : public GameObject
+	class Ball final : public GameObject, public Collidable
 	{
 	public:
-		void Init() override;
+		Ball() = default;
+		Ball(const sf::Vector2f& position);
+		~Ball() = default;
 		void Update(float timeDelta) override;
 		void Draw(sf::RenderWindow& window) override;
 
-		void ReboundFromPlatform();
-		void ReboundFromBlock();		
-		void ReboundFromBlockSide();
+		void InvertDirectionX();
+		void InvertDirectionY();
+
+		bool GetCollision(std::shared_ptr<Collidable> collidable) const override;
+		void ChangeAngle(float x);
 
 	private:
+		void OnHit();
 		sf::Vector2f direction;
+		float lastAngle = 90;
 	};
 }

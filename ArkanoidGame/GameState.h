@@ -3,7 +3,7 @@
 #include "GameStateData.h"
 
 
-namespace SnakeGame
+namespace ArkanoidGame
 {
 	enum class GameStateType
 	{

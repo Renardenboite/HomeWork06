@@ -9,7 +9,7 @@
 #include <deque>
 #include <memory>
 
-namespace SnakeGame
+namespace ArkanoidGame
 {
 	enum class GameOptions: std::uint8_t
 	{

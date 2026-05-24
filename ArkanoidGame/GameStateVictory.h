@@ -3,7 +3,7 @@
 #include "GameStateData.h"
 
 
-namespace SnakeGame
+namespace ArkanoidGame
 {
     class GameStateVictoryData : public GameStateData
     {

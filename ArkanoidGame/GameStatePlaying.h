@@ -7,7 +7,7 @@
 #include "Block.h"
 
 
-namespace SnakeGame
+namespace ArkanoidGame
 {
 	class Game;
 
@@ -38,11 +38,13 @@ namespace SnakeGame
 
 		// Sounds
 		sf::Sound gameOverSound;
+
 		Platform* platform = nullptr;
 		Ball* ball = nullptr;
 		std::vector<Block*> blocks; 
 
 		int blocksDestroyed = 0;
+		int totalDestroyableBlocks = 0;
 		bool gameWon = false;		
 	};
 }

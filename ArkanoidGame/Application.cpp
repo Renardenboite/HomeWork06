@@ -1,7 +1,7 @@
 #include "Application.h"
 #include <cstdlib>
 
-namespace SnakeGame
+namespace ArkanoidGame
 {
 	Application& Application::Instance()
 	{
@@ -13,7 +13,7 @@ namespace SnakeGame
 		window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), GAME_NAME)
 	{
 		// Init random number generator
-		unsigned int seed = (unsigned int)time(nullptr); // Get current time as seed. You can also use any other number to fix randomization
+		unsigned int seed = (unsigned int)time(nullptr); 
 		srand(seed);
 	}
 

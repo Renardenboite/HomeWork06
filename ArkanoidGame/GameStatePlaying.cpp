@@ -8,7 +8,7 @@
 #include <assert.h>
 #include <sstream>
 
-namespace SnakeGame
+namespace ArkanoidGame
 {
 	void GameStatePlayingData::Init()
 	{	
@@ -18,7 +18,7 @@ namespace SnakeGame
 		// Init background
 		background.setSize(sf::Vector2f(SCREEN_WIDTH, SCREEN_HEIGHT));
 		background.setPosition(0.f, 0.f);
-		background.setFillColor(sf::Color(0, 200, 0));
+		background.setFillColor(sf::Color(30, 30, 30));
 
 		scoreText.setFont(font);
 		scoreText.setCharacterSize(24);
@@ -35,27 +35,92 @@ namespace SnakeGame
 		gameObjects.push_back(platformObj);
 		platform = platformObj.get();
 
-		auto ballObj = std::make_shared<Ball>();
-		ballObj->Init();
+		sf::Vector2f ballStartPos = {
+			SCREEN_WIDTH / 2.f,
+			SCREEN_HEIGHT - PLATFORM_HEIGHT - BALL_SIZE - 10.f
+		};
+
+		auto ballObj = std::make_shared<Ball>(ballStartPos);
 		gameObjects.push_back(ballObj);
 		ball = ballObj.get();
 
 		const float totalWidth = COLS * BLOCK_WIDTH + (COLS - 1) * blockSpacingX;
 		const float startX = (SCREEN_WIDTH - totalWidth) / 2.f;
 		const float startY = 80.f;
+
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<int> colorDist(0, 255);
+
 		for (int row = 0; row < ROWS; ++row)
 		{
 			for (int col = 0; col < COLS; ++col)
 			{
-				auto blockObj = std::make_shared<Block>();
-				blockObj->Init();
-
 				float x = startX + col * (BLOCK_WIDTH + blockSpacingX);
 				float y = startY + row * (BLOCK_HEIGHT + blockSpacingY);
-				blockObj->SetPosition({ x, y });
+				sf::Vector2f pos = { x, y };
+
+				std::shared_ptr<Block> blockObj;
+
+				//high row
+				if (row == 0)
+				{
+					if (col == 0 || col == COLS - 1)
+					{						
+						blockObj = std::make_shared<MultiHitBlock>(pos);
+					}
+					else if (col == COLS / 2)
+					{						
+						blockObj = std::make_shared<MultiHitBlock>(pos);
+					}
+					else
+					{
+						sf::Color color(colorDist(gen), colorDist(gen), colorDist(gen));
+						blockObj = std::make_shared<SmoothDestroyableBlock>(pos, color);
+					}
+				}
+
+				//middle row
+				else if (row == 1)
+				{
+					if (col == 0 || col == COLS - 1 || col == COLS / 2)
+					{
+						blockObj = std::make_shared<UnbreackableBlock>(pos);
+					}
+					else
+					{
+						sf::Color color(colorDist(gen), colorDist(gen), colorDist(gen));
+						blockObj = std::make_shared<SmoothDestroyableBlock>(pos, color);
+					}
+				}
+
+				//low row
+				else
+				{
+					if (col == 1 || col == COLS - 2)
+					{
+						blockObj = std::make_shared<GlassBlock>(pos);
+					}
+					else if (col == COLS / 2)
+					{
+						// ÷ентральный Ч €ркий обычный блок
+						blockObj = std::make_shared<SmoothDestroyableBlock>(pos, sf::Color::Magenta);
+					}
+					else
+					{
+						// ќбычные блоки
+						sf::Color color = (col % 2 == 0) ? sf::Color::Cyan : sf::Color(255, 200, 50);
+						blockObj = std::make_shared<SmoothDestroyableBlock>(pos, color);
+					}
+				}
 
 				gameObjects.push_back(blockObj);
 				blocks.push_back(blockObj.get());
+
+				if (!dynamic_cast<UnbreackableBlock*>(blockObj.get()))
+				{
+					totalDestroyableBlocks++;
+				}				
 			}
 		}
 
@@ -80,7 +145,7 @@ namespace SnakeGame
 	void GameStatePlayingData::Update(float timeDelta)
 	{
 		if (gameWon) return;
-
+				
 		for (auto& obj : gameObjects)
 		{
 			obj->Update(timeDelta);
@@ -88,7 +153,7 @@ namespace SnakeGame
 
 		if (platform->CheckCollisionWithBall(*ball))
 		{
-			ball->ReboundFromPlatform();
+			ball->InvertDirectionY();
 		}
 
 		CheckBallCollisionWithBlocks();
@@ -100,13 +165,23 @@ namespace SnakeGame
 			gameOverSound.play();
 			Game& game = Application::Instance().GetGame();
 			game.PushState(GameStateType::GameOver, false);
-		}		
+		}
 	}
 
 	void GameStatePlayingData::CheckBallCollisionWithBlocks()
 	{
 		const sf::Vector2f ballPos = ball->GetPosition();
 		const float ballRadius = BALL_SIZE / 2.f;
+
+		struct CollisionInfo
+		{
+			Block* block;
+			float distance;
+			float overlapX;
+			float overlapY;
+			bool hitSide;
+		};
+		std::vector<CollisionInfo> collisions;
 
 		Block* closestBlock = nullptr;
 		float minDistance = std::numeric_limits<float>::max();
@@ -128,7 +203,7 @@ namespace SnakeGame
 
 			if (overlapLeft > 0 && overlapRight > 0 && overlapTop > 0 && overlapBottom > 0)
 			{				
-				collidedBlocks.push_back(block);
+				//collidedBlocks.push_back(block);
 
 				float blockCenterX = blockRect.left + blockRect.width / 2.f;
 				float blockCenterY = blockRect.top + blockRect.height / 2.f;
@@ -136,46 +211,85 @@ namespace SnakeGame
 				float distY = ballPos.y - blockCenterY;
 				float distance = std::sqrt(distX * distX + distY * distY);
 
-				if (distance < minDistance)
-				{
-					minDistance = distance;
-					closestBlock = block;
-					closestRect = blockRect;
-
-					float minOverlapX = std::min(overlapLeft, overlapRight);
-					float minOverlapY = std::min(overlapTop, overlapBottom);
-					hitSide = (minOverlapX < minOverlapY);
-				}				
+				float minOverlapX = std::min(overlapLeft, overlapRight);
+				float minOverlapY = std::min(overlapTop, overlapBottom);
+				collisions.push_back({
+					block,
+					distance,
+					overlapLeft,
+					overlapTop,
+					(minOverlapX < minOverlapY) 
+					});								
 			}			
 		}
 
-		if (!collidedBlocks.empty())
+		if (collisions.empty()) return;
+
+		auto closestIt = std::min_element(collisions.begin(), collisions.end(),
+			[](const CollisionInfo& a, const CollisionInfo& b) {
+				return a.distance < b.distance;
+			});
+
+		bool hasGlassBlock = false;
+		for (const auto& col : collisions)
 		{
-			if (hitSide)
+			if (dynamic_cast<GlassBlock*>(col.block))
 			{
-				ball->ReboundFromBlockSide();
+				hasGlassBlock = true;
+				break;
+			}
+		}
+
+		if (!hasGlassBlock)
+		{
+			if (closestIt->hitSide)
+			{
+				ball->InvertDirectionX();
 			}
 			else
 			{
-				ball->ReboundFromBlock();
+				ball->InvertDirectionY();
 			}
 
-			for (auto* block : collidedBlocks)
+			sf::Vector2f newBallPos = ball->GetPosition();
+			const sf::FloatRect& closestRect = closestIt->block->GetRect();
+
+			if (closestIt->hitSide)
 			{
-				block->Destroy();
+				if (newBallPos.x < closestRect.left + closestRect.width / 2.f)
+					newBallPos.x = closestRect.left - ballRadius;
+				else
+					newBallPos.x = closestRect.left + closestRect.width + ballRadius;
+			}
+			else
+			{
+				if (newBallPos.y < closestRect.top + closestRect.height / 2.f)
+					newBallPos.y = closestRect.top - ballRadius;
+				else
+					newBallPos.y = closestRect.top + closestRect.height + ballRadius;
+			}
+			ball->SetPosition(newBallPos);
+		}
+
+		for (auto& col : collisions)
+		{
+			col.block->OnHit();
+
+			if (col.block->IsDestroyed() && !dynamic_cast<UnbreackableBlock*>(col.block))
+			{
 				blocksDestroyed++;
 			}
-		}
+		}	
 	}
 
 	void GameStatePlayingData::CheckWinCondition()
 	{
-		if (blocksDestroyed >= blocks.size())
+		if (blocksDestroyed >= totalDestroyableBlocks)
 		{
 			gameWon = true;
 
 			Game& game = Application::Instance().GetGame();
-			game.PushState(GameStateType::Victory, false);  
+			game.PushState(GameStateType::Victory, false);
 		}
 	}
 
@@ -187,7 +301,7 @@ namespace SnakeGame
 		for (auto& obj : gameObjects)
 		{
 			auto* block = dynamic_cast<Block*>(obj.get());
-			if (block && block->IsDestroyed()) continue;  // ѕропускаем уничтоженные блоки
+			if (block && block->IsDestroyed()) continue; 
 
 			obj->Draw(window);
 		}

@@ -1,17 +1,26 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <assert.h>
+#include "Sprite.h"
 
-
-namespace SnakeGame
+namespace ArkanoidGame
 {
 	class GameObject
 	{
 	public:
+		GameObject() = default;
+
+		GameObject(const std::string& texturePath, const sf::Vector2f& position, float width, float height)
+		{
+			texture.loadFromFile(texturePath);
+			InitSprite(sprite, width, height, texture);
+			sprite.setPosition(position);
+		}
 		virtual ~GameObject() = default;
 
-		virtual void Init() = 0;
+		virtual void Init() {}
 		virtual void Update(float timeDelta) = 0;
-		virtual void Draw(sf::RenderWindow& window) = 0;
+		virtual void Draw(sf::RenderWindow& window) {} 
 
 		const sf::Vector2f& GetPosition() const { return sprite.getPosition(); }
 		const sf::FloatRect GetRect() const { return sprite.getGlobalBounds(); }

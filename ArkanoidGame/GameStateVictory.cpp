@@ -4,7 +4,7 @@
 #include "Text.h"
 #include <assert.h>
 
-namespace SnakeGame
+namespace ArkanoidGame
 {
     void GameStateVictoryData::Init()
     {

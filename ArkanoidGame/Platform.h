@@ -3,7 +3,7 @@
 #include "GameObject.h"
 #include <algorithm>
 
-namespace SnakeGame
+namespace ArkanoidGame
 {
 	class Ball;
 

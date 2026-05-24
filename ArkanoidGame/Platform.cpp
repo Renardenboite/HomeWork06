@@ -10,13 +10,13 @@ namespace
 	const std::string TEXTURE_ID = "platform";
 }
 
-namespace SnakeGame
+namespace ArkanoidGame
 {
 	void Platform::Init()
 	{
 		assert(texture.loadFromFile(TEXTURES_PATH + TEXTURE_ID + ".png"));
 
-		InitSprite(sprite, PLATFORM_WIGTH, PLATFORM_HEIGHT, texture);
+		InitSprite(sprite, PLATFORM_WIDTH, PLATFORM_HEIGHT, texture);
 		sprite.setPosition({ SCREEN_WIDTH / 2.0, SCREEN_HEIGHT - PLATFORM_HEIGHT / 2.f });
 	}
 
@@ -39,7 +39,8 @@ namespace SnakeGame
 	void Platform::Move(float speed)
 	{
 		sf::Vector2f position = sprite.getPosition();
-		position.x = std::clamp(position.x + speed, PLATFORM_WIGTH / 2.f, SCREEN_WIDTH - PLATFORM_HEIGHT / 2.f);
+		float halfWidth = sprite.getGlobalBounds().width / 2.f;
+		position.x = std::clamp(position.x + speed, halfWidth, SCREEN_WIDTH - halfWidth);
 		sprite.setPosition(position);
 	}
 

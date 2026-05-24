@@ -5,7 +5,7 @@
 #include <functional>
 
 
-namespace SnakeGame
+namespace ArkanoidGame
 {
 	class Menu;
 
