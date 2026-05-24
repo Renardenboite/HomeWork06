@@ -36,12 +36,7 @@ namespace ArkanoidGame
     void Block::OnHit()
     {
         hitCount = 0;
-    }
-
-    /*bool Block::IsDestroyed() const
-    {
-        return hitCount <= 0;
-    }*/
+    }   
 
     void Block::Update(float timeDelta) {}
 
@@ -60,7 +55,7 @@ namespace ArkanoidGame
 
     bool SmoothDestroyableBlock::GetCollision(std::shared_ptr<Collidable> collidableObject) const
     {
-        if (isTimerStarted_)
+        if (IsDestroyed() || isTimerStarted_)
         {
             return false;
         }
@@ -74,18 +69,27 @@ namespace ArkanoidGame
 
     void SmoothDestroyableBlock::OnHit()
     {
+        hitCount = 0;
         StartTimer(BREAK_DELAY);
     }
 
     void SmoothDestroyableBlock::FinalAction()
     {
-        --hitCount;
+        //--hitCount;
     }
 
     void SmoothDestroyableBlock::EachTickAction(float timeDelta)
     {
         color.a = static_cast<sf::Uint8>(255 * currentTime_ / destroyTime_);
         sprite.setColor(color);
+    }
+
+    void SmoothDestroyableBlock::Draw(sf::RenderWindow& window)
+    {
+        if (!IsDestroyed() || isTimerStarted_) 
+        {
+            DrawSprite(sprite, window);
+        }
     }
 
     UnbreackableBlock::UnbreackableBlock(const sf::Vector2f& position)
@@ -137,6 +141,7 @@ namespace ArkanoidGame
         {
             UpdateTexture();
             isBreaking = true;
+            counted = false;
             StartTimer(BREAK_DELAY);
         }
     }
@@ -180,15 +185,15 @@ namespace ArkanoidGame
 
     void GlassBlock::Update(float timeDelta)
     {
-        if (collisionProcessed)
+        /*if (collisionProcessed)
         {
             UpdateTimer(timeDelta);
-        }
+        }*/
     }
 
     bool GlassBlock::GetCollision(std::shared_ptr<Collidable> collidableObject) const
     {
-        if (collisionProcessed) return false;
+        //if (collisionProcessed) return false;
 
         auto gameObject = std::dynamic_pointer_cast<GameObject>(collidableObject);
         assert(gameObject);
@@ -197,11 +202,13 @@ namespace ArkanoidGame
 
     void GlassBlock::OnHit()
     {
-        if (!collisionProcessed)
+        hitCount = 0;
+        /*if (!isTimerStarted_)
         {
             collisionProcessed = true;
-            StartTimer(BREAK_DELAY);  
-        }
+            hitCount = 0; 
+            StartTimer(BREAK_DELAY); 
+        }*/
     }
 
     void GlassBlock::EachTickAction(float timeDelta)

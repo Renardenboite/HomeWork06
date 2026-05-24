@@ -30,6 +30,7 @@ namespace ArkanoidGame
 		virtual void EachTickAction(float timeDelta) = 0;
 
 	public:
+		bool IsTimerStarted() const { return isTimerStarted_; }
 		void StartTimer(float destroyTime)
 		{
 			destroyTime_ = destroyTime;

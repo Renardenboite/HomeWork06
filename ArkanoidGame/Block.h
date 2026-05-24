@@ -32,7 +32,7 @@ namespace ArkanoidGame
         SmoothDestroyableBlock(const sf::Vector2f& position, const sf::Color& color = sf::Color::Blue);
         ~SmoothDestroyableBlock() = default;
         void Update(float timeDelta) override;
-
+        void Draw(sf::RenderWindow& window) override;
         bool GetCollision(std::shared_ptr<Collidable> collidableObject) const override;
         void FinalAction() override;
         void EachTickAction(float deltaTime) override;
@@ -50,21 +50,24 @@ namespace ArkanoidGame
     {
     public:
         MultiHitBlock(const sf::Vector2f& position);
-        void OnHit() override;
-        bool IsDestroyed() const override;
+        void OnHit() override;        
         void Update(float timeDelta) override;
-
         void FinalAction() override;
         void EachTickAction(float deltaTime) override;
+        void SetCounted(bool val) { counted = val; }
+
+        bool IsDestroyed() const override;
+        bool IsBreaking() const { return isBreaking; }
+        bool IsCounted() const { return counted; }
 
     private:
         int maxHits = 3;
         int currentHits = 0;
         std::vector<sf::Texture> hitTextures;
         sf::Color originalColor;
-
         void UpdateTexture();
         bool isBreaking = false; 
+        bool counted = false;
     };
 
     class GlassBlock : public Block, public IDelayedAction

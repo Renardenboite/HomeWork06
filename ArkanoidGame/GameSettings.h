@@ -11,8 +11,8 @@ namespace ArkanoidGame
 
 	// Game settings constants
 	const float ACCELERATION = 200.f;	
-	const float PLATFORM_SPEED = 200.f;
-	const float PLATFORM_WIDTH = 80.f;
+	const float PLATFORM_SPEED = 300.f;
+	const float PLATFORM_WIDTH = 130.f;
 	const float PLATFORM_HEIGHT = 20.f;
 		
 	const float BLOCK_WIDTH = 80.f;
@@ -26,7 +26,7 @@ namespace ArkanoidGame
 	const float blockSpacingY= 10.f;
 
 	const float BALL_SIZE = 20.f;
-	const float BALL_SPEED = 200.f;
+	const float BALL_SPEED = 300.f;
 
 	const int MAX_APPLES = 80;
 	const unsigned int SCREEN_WIDTH = 800;

@@ -2,6 +2,7 @@
 #include "GameSettings.h"
 #include "Sprite.h"
 #include <assert.h>
+#include <algorithm>
 #include "Randomizer.h"
 
 namespace
@@ -41,12 +42,20 @@ namespace ArkanoidGame
 
 	void Ball::InvertDirectionX()
 	{
-		direction.x *= -1;
+		direction.x *= -1; 
+
+		float len = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+		direction.x /= len;
+		direction.y /= len;
 	}
 
 	void Ball::InvertDirectionY()
 	{
-		direction.y *= -1;
+		direction.y = -std::abs(direction.y);
+
+		float len = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+		direction.x /= len;
+		direction.y /= len;
 	}
 
 	bool Ball::GetCollision(std::shared_ptr<Collidable> collidable) const
@@ -59,6 +68,9 @@ namespace ArkanoidGame
 	void Ball::OnHit()
 	{
 		lastAngle += random<float>(-5, 5);
+
+		lastAngle = std::clamp(lastAngle, 30.f, 150.f);
+
 		ChangeAngle(lastAngle);
 	}
 
